@@ -172,9 +172,10 @@
               h("div", { style: { color: "#aaa", fontSize: 12, fontWeight: 600 } }, "HOLE"),
               h("div", { style: { fontFamily: "'Bangers', cursive", fontSize: 48, color: "#FFE66D", lineHeight: 1 } }, hole)
             ),
-            h("div", { style: { textAlign: "center" } },
+            h("button", { onClick: () => setHolePars(prev => { const n = [...prev]; n[hole-1] = n[hole-1] >= 5 ? 2 : n[hole-1] + 1; return n; }), style: { textAlign: "center", background: "none", padding: 0 } },
               h("div", { style: { color: "#aaa", fontSize: 12, fontWeight: 600 } }, "PAR"),
-              h("div", { style: { color: "#4ECDC4", fontSize: 32, fontWeight: 700 } }, par)
+              h("div", { style: { color: "#4ECDC4", fontSize: 32, fontWeight: 700 } }, par),
+              h("div", { style: { color: "#555", fontSize: 9, marginTop: 2 } }, "tap to edit")
             ),
             h("button", { onClick: () => setPhase("scoreboard"), style: { padding: "8px 16px", borderRadius: 10, border: "1px solid rgba(255,255,255,0.15)", background: "rgba(255,255,255,0.05)", color: "#7ec8e3", fontSize: 13, fontWeight: 600 } }, "Scoreboard")
           ),
