@@ -18,20 +18,30 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script>
-    const { useState, createElement: h } = React;
+    const { useState, useEffect, createElement: h } = React;
 
     const DEFAULT_PAR = 3;
     const COLORS = ["#FF6B6B","#4ECDC4","#FFE66D","#A8E6CF","#FF8B94","#7EC8E3","#C9B1FF","#FFB347"];
     const color = i => COLORS[i % COLORS.length];
     const fmtRel = n => n === 0 ? "E" : n > 0 ? "+" + n : "" + n;
 
+    const STORAGE_KEY = "minigolf_state";
+    const saveState = state => { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {} };
+    const loadState = () => { try { const s = localStorage.getItem(STORAGE_KEY); return s ? JSON.parse(s) : null; } catch(e) { return null; } };
+    const clearState = () => { try { localStorage.removeItem(STORAGE_KEY); } catch(e) {} };
+
     function App() {
-      const [phase, setPhase] = useState("setup");
-      const [players, setPlayers] = useState(["", ""]);
-      const [scores, setScores] = useState({});
-      const [hole, setHole] = useState(1);
-      const [numHoles, setNumHoles] = useState(18);
-      const [holePars, setHolePars] = useState(() => Array(18).fill(DEFAULT_PAR));
+      const saved = loadState();
+      const [phase, setPhase] = useState(saved?.phase || "setup");
+      const [players, setPlayers] = useState(saved?.players || ["", ""]);
+      const [scores, setScores] = useState(saved?.scores || {});
+      const [hole, setHole] = useState(saved?.hole || 1);
+      const [numHoles, setNumHoles] = useState(saved?.numHoles || 18);
+      const [holePars, setHolePars] = useState(saved?.holePars || Array(18).fill(DEFAULT_PAR));
+
+      useEffect(() => {
+        saveState({ phase, players, scores, hole, numHoles, holePars });
+      }, [phase, players, scores, hole, numHoles, holePars]);
 
       const addPlayer = () => players.length < 6 && setPlayers([...players, ""]);
       const removePlayer = i => players.length > 2 && setPlayers(players.filter((_, idx) => idx !== i));
@@ -62,6 +72,7 @@
       const leader = () => { const s = players.filter(p => total(p) > 0); return s.length ? s.reduce((a, b) => total(a) <= total(b) ? a : b) : null; };
 
       const newGame = () => {
+        clearState();
         setPhase("setup"); setScores({}); setHole(1);
         setPlayers(["", ""]); setNumHoles(18); setHolePars(Array(18).fill(DEFAULT_PAR));
       };
